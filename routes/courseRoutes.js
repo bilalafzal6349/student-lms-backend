@@ -21,6 +21,18 @@ router.get(
   authorize("admin"),
   courseController.getAnalytics,
 );
+router.get(
+  "/admin/all",
+  verifyToken,
+  authorize("admin"),
+  courseController.getAllCoursesAdmin,
+);
+router.get(
+  "/pending",
+  verifyToken,
+  authorize("admin"),
+  courseController.getPendingCourses,
+);
 router.get("/:id", courseController.getCourseById);
 router.get("/:id/reviews", reviewController.getCourseReviews);
 
@@ -48,6 +60,14 @@ router.delete(
   verifyToken,
   authorize("instructor", "admin"),
   courseController.deleteCourse,
+);
+
+// Admin status management
+router.patch(
+  "/:id/status",
+  verifyToken,
+  authorize("admin"),
+  courseController.updateCourseStatus,
 );
 
 // Student review routes

@@ -54,6 +54,13 @@ const HTTP = Object.freeze({
   INTERNAL: 500,
 });
 
+/** Course approval status */
+const COURSE_STATUS = Object.freeze({
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+});
+
 module.exports = {
   ROLES,
   TOKEN_EXPIRY,
@@ -64,4 +71,5 @@ module.exports = {
   RATE_LIMIT,
   PAGINATION,
   HTTP,
+  COURSE_STATUS,
 };

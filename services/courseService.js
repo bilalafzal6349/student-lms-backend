@@ -1,8 +1,8 @@
 const Course = require("../models/Course");
-const { ROLES, HTTP, PAGINATION } = require("../constants");
+const { ROLES, HTTP, PAGINATION, COURSE_STATUS } = require("../constants");
 
 /**
- * Returns a paginated, optionally filtered list of courses.
+ * Returns a paginated, optionally filtered list of approved courses (public).
  * Supports filtering by category, text search, and price range.
  */
 const getCourses = async ({
@@ -13,7 +13,8 @@ const getCourses = async ({
   minPrice,
   maxPrice,
 }) => {
-  const query = {};
+  // Public listing only shows approved courses
+  const query = { status: COURSE_STATUS.APPROVED };
 
   if (category) query.category = category;
   if (search) query.$text = { $search: search };
@@ -131,6 +132,67 @@ const getInstructorCourses = async (instructorId) => {
 };
 
 /**
+ * Returns all courses with any status for admin management.
+ */
+const getAllCoursesAdmin = async ({
+  page = PAGINATION.DEFAULT_PAGE,
+  limit = PAGINATION.DEFAULT_LIMIT,
+}) => {
+  const total = await Course.countDocuments();
+  const courses = await Course.find()
+    .populate("instructor", "name email avatar")
+    .skip((page - 1) * limit)
+    .limit(Number(limit))
+    .sort({ createdAt: -1 });
+
+  return {
+    courses,
+    page: Number(page),
+    totalPages: Math.ceil(total / limit),
+    total,
+  };
+};
+
+/**
+ * Returns all courses with status=pending for admin review.
+ */
+const getPendingCourses = async () => {
+  return Course.find({ status: COURSE_STATUS.PENDING })
+    .populate("instructor", "name email avatar")
+    .sort({ createdAt: -1 });
+};
+
+/**
+ * Approves a course by id. Throws 404 if not found.
+ */
+const approveCourse = async (id) => {
+  const course = await Course.findById(id);
+  if (!course) {
+    const err = new Error("Course not found");
+    err.status = HTTP.NOT_FOUND;
+    throw err;
+  }
+  course.status = COURSE_STATUS.APPROVED;
+  await course.save();
+  return course;
+};
+
+/**
+ * Rejects a course by id. Throws 404 if not found.
+ */
+const rejectCourse = async (id) => {
+  const course = await Course.findById(id);
+  if (!course) {
+    const err = new Error("Course not found");
+    err.status = HTTP.NOT_FOUND;
+    throw err;
+  }
+  course.status = COURSE_STATUS.REJECTED;
+  await course.save();
+  return course;
+};
+
+/**
  * Returns platform-wide analytics for the admin dashboard.
  * Aggregates total users by role, total courses, total enrollments,
  * and the top 5 most-enrolled courses.
@@ -192,5 +254,9 @@ module.exports = {
   updateCourse,
   deleteCourse,
   getInstructorCourses,
+  getAllCoursesAdmin,
+  getPendingCourses,
+  approveCourse,
+  rejectCourse,
   getAnalytics,
 };

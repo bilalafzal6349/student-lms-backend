@@ -91,6 +91,45 @@ const getAnalytics = async (req, res, next) => {
   }
 };
 
+/** GET /api/courses/admin — admin: all courses with any status */
+const getAllCoursesAdmin = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+    const result = await courseService.getAllCoursesAdmin({ page, limit });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/** GET /api/courses/pending — admin: pending courses only */
+const getPendingCourses = async (req, res, next) => {
+  try {
+    const courses = await courseService.getPendingCourses();
+    res.json({ courses });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/** PATCH /api/courses/:id/status — admin: approve or reject */
+const updateCourseStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    let course;
+    if (status === "approved") {
+      course = await courseService.approveCourse(req.params.id);
+    } else if (status === "rejected") {
+      course = await courseService.rejectCourse(req.params.id);
+    } else {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+    res.json({ course });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getCourses,
   getCourseById,
@@ -98,5 +137,8 @@ module.exports = {
   updateCourse,
   deleteCourse,
   getInstructorCourses,
+  getAllCoursesAdmin,
+  getPendingCourses,
+  updateCourseStatus,
   getAnalytics,
 };
