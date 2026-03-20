@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 const authService = require("../services/authService");
 const { generateAccessToken } = require("../utils/generateToken");
 
@@ -39,16 +40,21 @@ const login = async (req, res, next) => {
 };
 
 /** POST /api/auth/refresh */
-const refresh = (req, res, next) => {
+const refresh = async (req, res, next) => {
   try {
     const token = req.cookies?.refreshToken;
     if (!token)
       return res.status(401).json({ error: "Refresh token required" });
 
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    // Look up current role from DB — refresh token only stores id
+    const user = await User.findById(decoded.id).select("role");
+    if (!user) return res.status(401).json({ error: "User not found" });
+
     const accessToken = generateAccessToken({
       id: decoded.id,
-      role: decoded.role,
+      role: user.role,
     });
     res.json({ token: accessToken });
   } catch (err) {
