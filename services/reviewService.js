@@ -1,5 +1,6 @@
 const Review = require("../models/Review");
 const Course = require("../models/Course");
+const { ROLES, HTTP, PAGINATION } = require("../constants");
 
 /**
  * Recomputes and persists the average rating for a course.
@@ -17,7 +18,10 @@ const recalculateRating = async (courseId) => {
 /**
  * Returns paginated reviews for a course.
  */
-const getCourseReviews = async (courseId, { page = 1, limit = 10 }) => {
+const getCourseReviews = async (
+  courseId,
+  { page = PAGINATION.DEFAULT_PAGE, limit = PAGINATION.DEFAULT_LIMIT },
+) => {
   const total = await Review.countDocuments({ course: courseId });
   const reviews = await Review.find({ course: courseId })
     .populate("student", "name avatar")
@@ -51,14 +55,14 @@ const deleteReview = async (reviewId, requestingUser) => {
   const review = await Review.findById(reviewId);
   if (!review) {
     const err = new Error("Review not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
 
   const isAuthor = review.student.toString() === requestingUser.id;
-  if (!isAuthor && requestingUser.role !== "admin") {
+  if (!isAuthor && requestingUser.role !== ROLES.ADMIN) {
     const err = new Error("Forbidden: you cannot delete this review");
-    err.status = 403;
+    err.status = HTTP.FORBIDDEN;
     throw err;
   }
 

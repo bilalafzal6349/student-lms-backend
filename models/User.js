@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const { ROLES, BCRYPT_ROUNDS } = require("../constants");
 
 /**
  * User schema supporting three roles: admin, instructor, student.
@@ -18,8 +19,8 @@ const UserSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "instructor", "student"],
-      default: "student",
+      enum: Object.values(ROLES),
+      default: ROLES.STUDENT,
     },
     avatar: { type: String, default: "" },
     bio: { type: String, default: "" },
@@ -32,7 +33,7 @@ const UserSchema = new mongoose.Schema(
 
 /** Hash plain password and store it */
 UserSchema.methods.setPassword = async function (plainPassword) {
-  this.passwordHash = await bcrypt.hash(plainPassword, 12);
+  this.passwordHash = await bcrypt.hash(plainPassword, BCRYPT_ROUNDS);
 };
 
 /** Compare a plain password against the stored hash */

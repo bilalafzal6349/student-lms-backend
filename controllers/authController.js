@@ -2,13 +2,15 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const authService = require("../services/authService");
 const { generateAccessToken } = require("../utils/generateToken");
+const { ROLES, REFRESH_COOKIE_MAX_AGE } = require("../constants");
 
 /** POST /api/auth/register */
 const register = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
     // Only student and instructor are self-registerable — admin must be assigned
-    const safeRole = role === "instructor" ? "instructor" : "student";
+    const safeRole =
+      role === ROLES.INSTRUCTOR ? ROLES.INSTRUCTOR : ROLES.STUDENT;
     await authService.register({ name, email, password, role: safeRole });
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
@@ -30,7 +32,7 @@ const login = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: REFRESH_COOKIE_MAX_AGE,
     });
 
     res.json({ token: accessToken, user });

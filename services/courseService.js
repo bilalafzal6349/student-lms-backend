@@ -1,12 +1,13 @@
 const Course = require("../models/Course");
+const { ROLES, HTTP, PAGINATION } = require("../constants");
 
 /**
  * Returns a paginated, optionally filtered list of courses.
  * Supports filtering by category, text search, and price range.
  */
 const getCourses = async ({
-  page = 1,
-  limit = 10,
+  page = PAGINATION.DEFAULT_PAGE,
+  limit = PAGINATION.DEFAULT_LIMIT,
   category,
   search,
   minPrice,
@@ -47,7 +48,7 @@ const getCourseById = async (id) => {
     .populate("lessons");
   if (!course) {
     const err = new Error("Course not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
   return course;
@@ -83,14 +84,14 @@ const updateCourse = async (id, updates, requestingUser) => {
   const course = await Course.findById(id);
   if (!course) {
     const err = new Error("Course not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
 
   const isOwner = course.instructor.toString() === requestingUser.id;
-  if (!isOwner && requestingUser.role !== "admin") {
+  if (!isOwner && requestingUser.role !== ROLES.ADMIN) {
     const err = new Error("Forbidden: you do not own this course");
-    err.status = 403;
+    err.status = HTTP.FORBIDDEN;
     throw err;
   }
 
@@ -106,14 +107,14 @@ const deleteCourse = async (id, requestingUser) => {
   const course = await Course.findById(id);
   if (!course) {
     const err = new Error("Course not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
 
   const isOwner = course.instructor.toString() === requestingUser.id;
-  if (!isOwner && requestingUser.role !== "admin") {
+  if (!isOwner && requestingUser.role !== ROLES.ADMIN) {
     const err = new Error("Forbidden: you do not own this course");
-    err.status = 403;
+    err.status = HTTP.FORBIDDEN;
     throw err;
   }
 

@@ -1,5 +1,6 @@
 const Enrollment = require("../models/Enrollment");
 const Course = require("../models/Course");
+const { HTTP } = require("../constants");
 
 /**
  * Enrolls a student in a course.
@@ -10,7 +11,7 @@ const enroll = async (studentId, courseId) => {
   const course = await Course.findById(courseId);
   if (!course) {
     const err = new Error("Course not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
 
@@ -47,7 +48,7 @@ const updateProgress = async (studentId, courseId, progress) => {
   );
   if (!enrollment) {
     const err = new Error("Enrollment not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
   return enrollment;

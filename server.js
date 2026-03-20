@@ -8,6 +8,7 @@ const rateLimit = require("express-rate-limit");
 
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/errorHandler");
+const { RATE_LIMIT } = require("./constants");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -15,6 +16,7 @@ const courseRoutes = require("./routes/courseRoutes");
 const lessonRoutes = require("./routes/lessonRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 const app = express();
 
@@ -36,6 +38,9 @@ app.use(
       // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin || allowedOrigins.includes(origin))
         return callback(null, true);
+      console.error(
+        `CORS blocked: "${origin}" not in [${allowedOrigins.join(", ")}]`,
+      );
       callback(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
@@ -45,8 +50,8 @@ app.use(
 // General rate limiter — 100 requests per 15 minutes per IP
 app.use(
   rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
+    windowMs: RATE_LIMIT.GLOBAL.WINDOW_MS,
+    max: RATE_LIMIT.GLOBAL.MAX,
     message: { error: "Too many requests, please slow down" },
   }),
 );
@@ -69,6 +74,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/lessons", lessonRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api", enrollmentRoutes); // /api/enroll and /api/my-courses
 
 // 404 handler
@@ -78,6 +84,8 @@ app.use((req, res) => res.status(404).json({ error: "Route not found" }));
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`Server running on port ${PORT}`),
+);
 
 module.exports = app;

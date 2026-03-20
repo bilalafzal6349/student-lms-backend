@@ -5,6 +5,7 @@ const {
   generateRefreshToken,
 } = require("../utils/generateToken");
 const sendEmail = require("../utils/sendEmail");
+const { ROLES, OTP_EXPIRY_MS, HTTP } = require("../constants");
 
 /**
  * Registers a new user. Defaults role to 'student'.
@@ -14,11 +15,11 @@ const register = async ({ name, email, password, role }) => {
   const existing = await User.findOne({ email });
   if (existing) {
     const err = new Error("Email already registered");
-    err.status = 409;
+    err.status = HTTP.CONFLICT;
     throw err;
   }
 
-  const user = new User({ name, email, role: role || "student" });
+  const user = new User({ name, email, role: role || ROLES.STUDENT });
   await user.setPassword(password);
   await user.save();
   return user;
@@ -32,7 +33,7 @@ const login = async ({ email, password }) => {
   const user = await User.findOne({ email });
   if (!user || !(await user.comparePassword(password))) {
     const err = new Error("Invalid email or password");
-    err.status = 401;
+    err.status = HTTP.UNAUTHORIZED;
     throw err;
   }
 
@@ -53,7 +54,7 @@ const requestPasswordReset = async (email) => {
 
   const otp = crypto.randomInt(100000, 999999).toString();
   user.resetOtp = otp;
-  user.resetOtpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+  user.resetOtpExpiry = new Date(Date.now() + OTP_EXPIRY_MS);
   await user.save();
 
   await sendEmail({
@@ -71,7 +72,7 @@ const confirmPasswordReset = async ({ email, otp, newPassword }) => {
   const user = await User.findOne({ email });
   if (!user || user.resetOtp !== otp || user.resetOtpExpiry < new Date()) {
     const err = new Error("Invalid or expired OTP");
-    err.status = 400;
+    err.status = HTTP.BAD_REQUEST;
     throw err;
   }
 

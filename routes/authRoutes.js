@@ -3,13 +3,14 @@ const { body } = require("express-validator");
 const rateLimit = require("express-rate-limit");
 const authController = require("../controllers/authController");
 const { validate } = require("../middleware/validate");
+const { RATE_LIMIT } = require("../constants");
 
 const router = express.Router();
 
 // Strict rate limit on auth endpoints to prevent brute-force attacks
 const authLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 20,
+  windowMs: RATE_LIMIT.AUTH.WINDOW_MS,
+  max: RATE_LIMIT.AUTH.MAX,
   message: { error: "Too many requests, please try again later" },
 });
 

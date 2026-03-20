@@ -1,5 +1,6 @@
 const Lesson = require("../models/Lesson");
 const Course = require("../models/Course");
+const { ROLES, HTTP } = require("../constants");
 
 /**
  * Creates a lesson and appends it to the parent course's lessons array.
@@ -13,14 +14,14 @@ const createLesson = async (
   const course = await Course.findById(courseId);
   if (!course) {
     const err = new Error("Course not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
 
   const isOwner = course.instructor.toString() === requestingUser.id;
-  if (!isOwner && requestingUser.role !== "admin") {
+  if (!isOwner && requestingUser.role !== ROLES.ADMIN) {
     const err = new Error("Forbidden: you do not own this course");
-    err.status = 403;
+    err.status = HTTP.FORBIDDEN;
     throw err;
   }
 
@@ -43,14 +44,14 @@ const updateLesson = async (id, updates, requestingUser) => {
   const lesson = await Lesson.findById(id).populate("course");
   if (!lesson) {
     const err = new Error("Lesson not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
 
   const isOwner = lesson.course.instructor.toString() === requestingUser.id;
-  if (!isOwner && requestingUser.role !== "admin") {
+  if (!isOwner && requestingUser.role !== ROLES.ADMIN) {
     const err = new Error("Forbidden: you do not own this lesson");
-    err.status = 403;
+    err.status = HTTP.FORBIDDEN;
     throw err;
   }
 
@@ -66,14 +67,14 @@ const deleteLesson = async (id, requestingUser) => {
   const lesson = await Lesson.findById(id).populate("course");
   if (!lesson) {
     const err = new Error("Lesson not found");
-    err.status = 404;
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
 
   const isOwner = lesson.course.instructor.toString() === requestingUser.id;
-  if (!isOwner && requestingUser.role !== "admin") {
+  if (!isOwner && requestingUser.role !== ROLES.ADMIN) {
     const err = new Error("Forbidden: you do not own this lesson");
-    err.status = 403;
+    err.status = HTTP.FORBIDDEN;
     throw err;
   }
 
