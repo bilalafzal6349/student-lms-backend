@@ -31,7 +31,6 @@ router.post(
       );
       res.json({ url });
     } catch (err) {
-      console.error("Avatar upload error:", err.message);
       next(err);
     }
   },
@@ -52,7 +51,6 @@ router.post(
       );
       res.json({ url });
     } catch (err) {
-      console.error("Thumbnail upload error:", err.message);
       next(err);
     }
   },

@@ -51,9 +51,15 @@ const deleteUser = async (id) => {
 
 /**
  * Updates a user's role. Admin only.
- * Throws 400 for invalid role, 404 if not found.
+ * Throws 400 for invalid role, 403 if admin tries to demote themselves, 404 if not found.
  */
-const updateUserRole = async (id, role) => {
+const updateUserRole = async (id, role, requestingUser) => {
+  if (requestingUser.id === id) {
+    const err = new Error("You cannot change your own role");
+    err.status = HTTP.FORBIDDEN;
+    throw err;
+  }
+
   const allowed = Object.values(ROLES);
   if (!allowed.includes(role)) {
     const err = new Error("Invalid role");

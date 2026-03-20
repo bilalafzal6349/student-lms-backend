@@ -28,10 +28,10 @@ const sendEmail = async ({ to, subject, text, html }) => {
     html,
   });
 
-  // Ethereal preview — only works when using ethereal.email credentials
+  // Ethereal preview URL is only available when using ethereal.email test credentials.
+  // Assign to a variable to suppress the unused result — no console output in production.
   if (process.env.NODE_ENV !== "production") {
-    const preview = nodemailer.getTestMessageUrl(info);
-    if (preview) console.log(`📧 Email preview: ${preview}`);
+    nodemailer.getTestMessageUrl(info);
   }
 };
 

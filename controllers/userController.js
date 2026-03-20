@@ -34,7 +34,11 @@ const deleteUser = async (req, res, next) => {
 /** PATCH /api/users/:id/role */
 const updateUserRole = async (req, res, next) => {
   try {
-    const user = await userService.updateUserRole(req.params.id, req.body.role);
+    const user = await userService.updateUserRole(
+      req.params.id,
+      req.body.role,
+      req.user,
+    );
     res.json({ user });
   } catch (err) {
     next(err);
