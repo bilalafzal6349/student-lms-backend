@@ -188,9 +188,4 @@ Server runs at `http://localhost:5000`
 
 ---
 
-## Deploy to Railway
 
-1. Push the `backend/` folder as its own GitHub repo
-2. New project on [railway.app](https://railway.app) → Deploy from GitHub
-3. Set all env vars from `.env.example` in the Railway dashboard
-4. Railway auto-detects `package.json` and runs `node server.js`
