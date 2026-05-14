@@ -65,26 +65,16 @@ const refresh = async (req, res, next) => {
 };
 
 /** POST /api/auth/logout */
-const logout = (req, res) => {
+const logout = (_req, res) => {
   res.clearCookie("refreshToken");
   res.json({ message: "Logged out successfully" });
 };
 
 /** POST /api/auth/password-reset */
-const requestPasswordReset = async (req, res, next) => {
+const resetPassword = async (req, res, next) => {
   try {
-    await authService.requestPasswordReset(req.body.email);
-    res.json({ message: "OTP sent to email" });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/** POST /api/auth/password-reset/confirm */
-const confirmPasswordReset = async (req, res, next) => {
-  try {
-    const { email, otp, newPassword } = req.body;
-    await authService.confirmPasswordReset({ email, otp, newPassword });
+    const { email, newPassword } = req.body;
+    await authService.resetPassword({ email, newPassword });
     res.json({ message: "Password updated successfully" });
   } catch (err) {
     next(err);
@@ -96,6 +86,5 @@ module.exports = {
   login,
   refresh,
   logout,
-  requestPasswordReset,
-  confirmPasswordReset,
+  resetPassword,
 };

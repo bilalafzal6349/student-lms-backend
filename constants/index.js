@@ -14,9 +14,6 @@ const TOKEN_EXPIRY = Object.freeze({
 /** Refresh token cookie max-age in milliseconds (7 days) */
 const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
-/** OTP expiry in milliseconds (15 minutes) */
-const OTP_EXPIRY_MS = 15 * 60 * 1000;
-
 /** Bcrypt salt rounds */
 const BCRYPT_ROUNDS = 12;
 
@@ -65,7 +62,6 @@ module.exports = {
   ROLES,
   TOKEN_EXPIRY,
   REFRESH_COOKIE_MAX_AGE,
-  OTP_EXPIRY_MS,
   BCRYPT_ROUNDS,
   UPLOAD,
   RATE_LIMIT,

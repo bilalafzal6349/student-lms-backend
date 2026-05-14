@@ -45,22 +45,14 @@ router.post("/logout", authController.logout);
 router.post(
   "/password-reset",
   authLimiter,
-  [body("email").isEmail().withMessage("Valid email is required")],
-  validate,
-  authController.requestPasswordReset,
-);
-
-router.post(
-  "/password-reset/confirm",
   [
-    body("email").isEmail(),
-    body("otp").notEmpty().withMessage("OTP is required"),
+    body("email").isEmail().withMessage("Valid email is required"),
     body("newPassword")
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters"),
   ],
   validate,
-  authController.confirmPasswordReset,
+  authController.resetPassword,
 );
 
 module.exports = router;

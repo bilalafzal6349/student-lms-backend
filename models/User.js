@@ -24,9 +24,6 @@ const UserSchema = new mongoose.Schema(
     },
     avatar: { type: String, default: "" },
     bio: { type: String, default: "" },
-    // OTP fields for password reset flow
-    resetOtp: { type: String },
-    resetOtpExpiry: { type: Date },
   },
   { timestamps: true },
 );
@@ -41,12 +38,10 @@ UserSchema.methods.comparePassword = async function (plainPassword) {
   return bcrypt.compare(plainPassword, this.passwordHash);
 };
 
-/** Never expose passwordHash or OTP fields in JSON responses */
+/** Never expose passwordHash in JSON responses */
 UserSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.passwordHash;
-  delete obj.resetOtp;
-  delete obj.resetOtpExpiry;
   return obj;
 };
 

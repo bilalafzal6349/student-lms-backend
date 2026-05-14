@@ -1,11 +1,9 @@
-const crypto = require("crypto");
 const User = require("../models/User");
 const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../utils/generateToken");
-const sendEmail = require("../utils/sendEmail");
-const { ROLES, OTP_EXPIRY_MS, HTTP } = require("../constants");
+const { ROLES, HTTP } = require("../constants");
 
 /**
  * Registers a new user. Defaults role to 'student'.
@@ -44,47 +42,23 @@ const login = async ({ email, password }) => {
 };
 
 /**
- * Generates a 6-digit OTP, stores its hash + expiry on the user,
- * and sends it via email.
+ * Resets the user's password directly given a valid email.
+ * Throws 404 if the email is not registered.
  */
-const requestPasswordReset = async (email) => {
+const resetPassword = async ({ email, newPassword }) => {
   const user = await User.findOne({ email });
-  // Silently succeed to prevent email enumeration
-  if (!user) return;
-
-  const otp = crypto.randomInt(100000, 999999).toString();
-  user.resetOtp = otp;
-  user.resetOtpExpiry = new Date(Date.now() + OTP_EXPIRY_MS);
-  await user.save();
-
-  await sendEmail({
-    to: email,
-    subject: "Your LMS Password Reset OTP",
-    text: `Your OTP is: ${otp}. It expires in 15 minutes.`,
-  });
-};
-
-/**
- * Validates the OTP and updates the user's password.
- * Throws 400 on invalid or expired OTP.
- */
-const confirmPasswordReset = async ({ email, otp, newPassword }) => {
-  const user = await User.findOne({ email });
-  if (!user || user.resetOtp !== otp || user.resetOtpExpiry < new Date()) {
-    const err = new Error("Invalid or expired OTP");
-    err.status = HTTP.BAD_REQUEST;
+  if (!user) {
+    const err = new Error("No account found with that email");
+    err.status = HTTP.NOT_FOUND;
     throw err;
   }
 
   await user.setPassword(newPassword);
-  user.resetOtp = undefined;
-  user.resetOtpExpiry = undefined;
   await user.save();
 };
 
 module.exports = {
   register,
   login,
-  requestPasswordReset,
-  confirmPasswordReset,
+  resetPassword,
 };

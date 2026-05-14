@@ -59,8 +59,7 @@ backend/
 │   ├── generateToken.js
 │   └── sendEmail.js
 ├── .env                        # local env (never commit)
-├── .env.example                # template for env vars
-├── .gitignore
+── .gitignore
 ├── package.json
 ├── railway.json                # Railway deployment config
 └── server.js                   # entry point
@@ -74,22 +73,6 @@ backend/
 
 - Node.js 18+
 - MongoDB running locally
-
-### Steps
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Copy env template and fill in values
-cp .env.example .env
-
-# 3. Seed the first admin user
-node scripts/seedAdmin.js
-
-# 4. Start dev server
-npm run dev
-```
 
 Server runs at `http://localhost:5000`
 

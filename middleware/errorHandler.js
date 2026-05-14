@@ -3,7 +3,7 @@
  * Catches errors forwarded via next(err) and returns a consistent JSON response.
  * Mongoose validation errors are mapped to 400; everything else defaults to 500.
  */
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, _req, res, _next) => {
   console.error(`[Error] ${err.message}`);
 
   // Mongoose validation error

@@ -62,7 +62,7 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 // Health check
-app.get("/healthz", (req, res) => res.json({ status: "ok" }));
+app.get("/healthz", (_req, res) => res.json({ status: "ok" }));
 
 // API routes
 app.use("/api/auth", authRoutes);
@@ -74,7 +74,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api", enrollmentRoutes); // /api/enroll and /api/my-courses
 
 // 404 handler
-app.use((req, res) => res.status(404).json({ error: "Route not found" }));
+app.use((_req, res) => res.status(404).json({ error: "Route not found" }));
 
 // Global error handler — must be last
 app.use(errorHandler);
